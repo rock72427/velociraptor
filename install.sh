@@ -1,169 +1,202 @@
 #!/bin/bash
 
 # Velociraptor Installation Script
-# This script installs Velociraptor and its dependencies on Kali Linux
+# Automated Penetration Testing Reconnaissance Tool
 
 set -e
 
-echo "🦖 Velociraptor Installation Script"
-echo "=================================="
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
 
-# Check if running on Kali Linux
-if ! grep -q "kali" /etc/os-release 2>/dev/null; then
-    echo "⚠️  Warning: This script is designed for Kali Linux"
-    echo "   Some tools may not install correctly on other distributions"
-    read -p "Continue anyway? (y/N): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        exit 1
-    fi
-fi
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
 
 # Check if running as root
 if [[ $EUID -eq 0 ]]; then
-    echo "❌ Please do not run this script as root"
-    echo "   Run as a regular user with sudo privileges"
+   print_error "This script should not be run as root"
+   exit 1
+fi
+
+print_status "Starting Velociraptor installation..."
+
+# Check if we're on a supported system
+if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    print_status "Detected Linux system"
+elif [[ "$OSTYPE" == "darwin"* ]]; then
+    print_error "macOS is not fully supported. Please use Kali Linux or WSL."
+    exit 1
+else
+    print_error "Unsupported operating system: $OSTYPE"
     exit 1
 fi
 
-# Update system
-echo "📦 Updating system packages..."
+# Check if Python 3 is installed
+if ! command -v python3 &> /dev/null; then
+    print_error "Python 3 is not installed. Please install Python 3.7+ first."
+    exit 1
+fi
+
+# Check Python version
+PYTHON_VERSION=$(python3 -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')
+PYTHON_MAJOR=$(echo $PYTHON_VERSION | cut -d. -f1)
+PYTHON_MINOR=$(echo $PYTHON_VERSION | cut -d. -f2)
+
+if [ "$PYTHON_MAJOR" -lt 3 ] || ([ "$PYTHON_MAJOR" -eq 3 ] && [ "$PYTHON_MINOR" -lt 7 ]); then
+    print_error "Python 3.7+ is required. Current version: $PYTHON_VERSION"
+    exit 1
+fi
+
+print_success "Python $PYTHON_VERSION detected"
+
+# Check if Git is installed
+if ! command -v git &> /dev/null; then
+    print_warning "Git is not installed. Installing..."
+    sudo apt update
+    sudo apt install -y git
+fi
+
+# Check if Go is installed
+if ! command -v go &> /dev/null; then
+    print_warning "Go is not installed. Installing..."
+    sudo apt update
+    sudo apt install -y golang-go
+fi
+
+# Create tools directory
+TOOLS_DIR="$HOME/velociraptor-tools"
+mkdir -p "$TOOLS_DIR"
+export PATH="$PATH:$HOME/go/bin"
+
+print_status "Installing Python dependencies..."
+
+# Upgrade pip
+python3 -m pip install --upgrade pip
+
+# Install Python requirements
+if [ -f "requirements.txt" ]; then
+    pip3 install -r requirements.txt
+else
+    print_warning "requirements.txt not found. Installing basic dependencies..."
+    pip3 install requests beautifulsoup4 colorama
+fi
+
+print_status "Installing system dependencies..."
+
+# Update package list
 sudo apt update
 
-# Install basic dependencies
-echo "🔧 Installing basic dependencies..."
+# Install essential packages
 sudo apt install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    git \
+    build-essential \
     curl \
     wget \
-    build-essential \
-    golang-go \
+    unzip \
     nmap \
     masscan \
     nikto \
     sqlmap \
     wafw00f \
-    fimap
+    dirb \
+    gobuster \
+    seclists
+
+print_status "Installing Go-based tools..."
 
 # Install Go tools
-echo "🚀 Installing Go-based tools..."
 go install github.com/projectdiscovery/subfinder/v2/cmd/subfinder@latest
-go install github.com/owasp-amass/amass/v4/...@latest
-go install github.com/tomnomnom/assetfinder@latest
+go install github.com/owasp-amass/amass/v4/...@master
 go install github.com/ffuf/ffuf@latest
-go install github.com/OJ/gobuster/v3@latest
-go install github.com/hahwul/dalfox/v2@latest
 go install github.com/projectdiscovery/httpx/cmd/httpx@latest
-go install github.com/assetnote/kiterunner/cmd/kr@latest
+go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
 go install github.com/lc/gau/v2/cmd/gau@latest
 go install github.com/tomnomnom/waybackurls@latest
-go install github.com/projectdiscovery/nuclei/v2/cmd/nuclei@latest
-go install github.com/haccer/subjack@latest
-go install github.com/tomnomnom/httprobe@latest
-go install github.com/tomnomnom/meg@latest
-go install github.com/tomnomnom/unfurl@latest
+go install github.com/hahwul/dalfox/v2@latest
+go install github.com/jaeles-project/gospider@latest
+go install github.com/tomnomnom/assetfinder@latest
+go install github.com/tomnomnom/gf@latest
 go install github.com/tomnomnom/anew@latest
 go install github.com/tomnomnom/qsreplace@latest
-go install github.com/tomnomnom/gf@latest
-go install github.com/jaeles-project/gospider@latest
+go install github.com/tomnomnom/unfurl@latest
+go install github.com/tomnomnom/meg@latest
+go install github.com/tomnomnom/httprobe@latest
+go install github.com/haccer/subjack@latest
+go install github.com/assetnote/kiterunner/cmd/kr@latest
 go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest
+go install github.com/hakluke/hakrawler@latest
 
-# Add Go bin to PATH
-echo 'export PATH=$PATH:$(go env GOPATH)/bin' >> ~/.bashrc
-export PATH=$PATH:$(go env GOPATH)/bin
+print_status "Cloning Git repositories..."
 
-# Install Python tools
-echo "🐍 Installing Python-based tools..."
-pip3 install --user eyewitness arjun
+# Clone tool repositories
+cd "$TOOLS_DIR"
 
-# Clone Git repositories
-echo "📚 Cloning tool repositories..."
-cd /tmp
+# Clone repositories
+git clone https://github.com/GerbenJavado/LinkFinder.git || print_warning "LinkFinder already exists"
+git clone https://github.com/s0md3v/XSStrike.git || print_warning "XSStrike already exists"
+git clone https://github.com/devanshbatham/ParamSpider.git || print_warning "ParamSpider already exists"
+git clone https://github.com/tarunkant/Gopherus.git || print_warning "Gopherus already exists"
+git clone https://github.com/D35m0nd142/LFISuite.git || print_warning "LFISuite already exists"
+git clone https://github.com/Tuhinshubhra/CMSeeK.git || print_warning "CMSeeK already exists"
+git clone https://github.com/arthaud/git-dumper.git || print_warning "git-dumper already exists"
+git clone https://github.com/1ndianl33t/Gf-Patterns.git || print_warning "Gf-Patterns already exists"
 
-# LinkFinder
-git clone https://github.com/GerbenJavado/LinkFinder.git
-sudo cp -r LinkFinder /opt/
-sudo chmod +x /opt/LinkFinder/linkfinder.py
+# Install Python-based tools
+print_status "Installing Python-based tools..."
 
-# XSStrike
-git clone https://github.com/s0md3v/XSStrike.git
-sudo cp -r XSStrike /opt/
-sudo chmod +x /opt/XSStrike/xsstrike.py
+# Install eyewitness
+pip3 install eyewitness
 
-# ParamSpider
-git clone https://github.com/devanshbatham/ParamSpider.git
-sudo cp -r ParamSpider /opt/
-sudo chmod +x /opt/ParamSpider/paramspider.py
+# Install arjun
+pip3 install arjun
 
-# Gopherus
-git clone https://github.com/tarunkant/Gopherus.git
-sudo cp -r Gopherus /opt/
-sudo chmod +x /opt/Gopherus/gopherus.py
-
-# LFISuite
-git clone https://github.com/D35m0nd142/LFISuite.git
-sudo cp -r LFISuite /opt/
-sudo chmod +x /opt/LFISuite/lfi.py
-
-# CMSeek
-git clone https://github.com/Tuhinshubhra/CMSeeK.git
-sudo cp -r CMSeeK /opt/
-sudo chmod +x /opt/CMSeeK/cmseek.py
-
-# GitDumper
-git clone https://github.com/arthaud/git-dumper.git
-sudo cp -r git-dumper /opt/
-sudo chmod +x /opt/git-dumper/git-dumper.py
-
-# Gf-Patterns
-git clone https://github.com/1ndianl33t/Gf-Patterns.git
-mkdir -p ~/.gf
-cp -r Gf-Patterns/* ~/.gf/
-
-# Install Velociraptor
-echo "🦖 Installing Velociraptor..."
-cd ~
-if [ -d "velociraptor" ]; then
-    echo "📁 Velociraptor directory already exists, updating..."
-    cd velociraptor
-    git pull
-else
-    echo "📁 Cloning Velociraptor..."
-    git clone https://github.com/yourusername/velociraptor.git
-    cd velociraptor
+# Install fimap (if available)
+if command -v apt &> /dev/null; then
+    sudo apt install -y fimap || print_warning "fimap not available in repositories"
 fi
 
-# Install Python dependencies
-echo "📦 Installing Python dependencies..."
-pip3 install -r requirements.txt
+# Install aquatone
+go install github.com/michenriksen/aquatone@latest
+
+print_status "Setting up environment..."
+
+# Add Go bin to PATH permanently
+if ! grep -q "export PATH.*go/bin" ~/.bashrc; then
+    echo 'export PATH=$PATH:$HOME/go/bin' >> ~/.bashrc
+    print_status "Added Go bin to PATH in ~/.bashrc"
+fi
+
+# Set environment variable for tools directory
+if ! grep -q "VELOCIRAPTOR_TOOLS_DIR" ~/.bashrc; then
+    echo "export VELOCIRAPTOR_TOOLS_DIR=$TOOLS_DIR" >> ~/.bashrc
+    print_status "Added VELOCIRAPTOR_TOOLS_DIR to ~/.bashrc"
+fi
 
 # Make velociraptor.py executable
 chmod +x velociraptor.py
 
-# Create symlink
-sudo ln -sf $(pwd)/velociraptor.py /usr/local/bin/velociraptor
-
-echo ""
-echo "✅ Installation completed successfully!"
-echo ""
-echo "🎉 Velociraptor is now ready to use!"
-echo ""
-echo "Usage:"
-echo "  velociraptor target.com"
-echo "  python3 velociraptor.py target.com"
-echo ""
-echo "📁 Tools installed in:"
-echo "  - Go tools: $(go env GOPATH)/bin"
-echo "  - Python tools: ~/.local/bin"
-echo "  - Git tools: /opt/"
-echo ""
-echo "🔧 Next steps:"
-echo "  1. Restart your terminal or run: source ~/.bashrc"
-echo "  2. Test installation: velociraptor --help"
-echo "  3. Start reconnaissance: velociraptor example.com"
-echo ""
-echo "📚 Documentation: https://github.com/yourusername/velociraptor"
-echo "" 
+print_success "Installation completed successfully!"
+echo
+print_status "Next steps:"
+echo "1. Restart your terminal or run: source ~/.bashrc"
+echo "2. Test the installation: python3 velociraptor.py --help"
+echo "3. Run a scan: python3 velociraptor.py example.com"
+echo
+print_status "📚 Documentation: https://github.com/rock72427/velociraptor"
+print_status "🐛 Issues: https://github.com/rock72427/velociraptor/issues" 

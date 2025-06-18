@@ -56,7 +56,7 @@ Velociraptor is a comprehensive Python library designed to automate various pene
 
 1. **Clone the repository**:
 ```bash
-git clone https://github.com/yourusername/velociraptor.git
+git clone https://github.com/rock72427/velociraptor.git
 cd velociraptor
 ```
 
@@ -302,35 +302,33 @@ custom_sql_payloads = [
 ### Common Issues
 
 1. **Tool Installation Failures**
-   ```bash
-   # Update package lists
-   sudo apt update
-   
-   # Install build dependencies
-   sudo apt install build-essential git curl wget
-   ```
+```bash
+# Update package lists
+sudo apt update
+# Install build dependencies
+sudo apt install build-essential git curl wget
+```
 
 2. **Permission Errors**
-   ```bash
-   # Ensure proper permissions
-   sudo chown -R $USER:$USER /usr/local/bin
-   ```
+```bash
+# Ensure proper permissions
+sudo chown -R $USER:$USER /usr/local/bin
+```
 
 3. **Go Tool Issues**
-   ```bash
-   # Update Go
-   go version
-   go get -u all
-   ```
+```bash
+# Update Go
+go version
+go get -u all
+```
 
 4. **Python Dependencies**
-   ```bash
-   # Upgrade pip
-   pip3 install --upgrade pip
-   
-   # Install dependencies
-   pip3 install -r requirements.txt
-   ```
+```bash
+# Upgrade pip
+pip3 install --upgrade pip
+# Install dependencies
+pip3 install -r requirements.txt
+```
 
 ### Debug Mode
 ```bash
@@ -341,12 +339,12 @@ python3 velociraptor.py target.com
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
+We welcome contributions! Please see our Contributing Guidelines for details.
 
 ### Development Setup
 ```bash
 # Clone repository
-git clone https://github.com/yourusername/velociraptor.git
+git clone https://github.com/rock72427/velociraptor.git
 cd velociraptor
 
 # Create virtual environment
@@ -363,7 +361,7 @@ python -m pytest tests/
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
 ## ⚠️ Disclaimer
 
@@ -377,9 +375,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/velociraptor/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/velociraptor/discussions)
-- **Documentation**: [Wiki](https://github.com/yourusername/velociraptor/wiki)
+- **Issues**: [GitHub Issues](https://github.com/rock72427/velociraptor/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/rock72427/velociraptor/discussions)
+- **Documentation**: [Wiki](https://github.com/rock72427/velociraptor/wiki)
 
 ---
 

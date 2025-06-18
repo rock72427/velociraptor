@@ -76,8 +76,6 @@ class Velociraptor:
                 'check': 'eyewitness --help',
                 'windows_check': 'eyewitness --help'
             },
-            \\aquatone.exe -version' if self.is_windows else 'aquatone -version'
-            },
             'ffuf': {
                 'go': 'go install github.com/ffuf/ffuf@latest', 
                 'check': 'ffuf -V',
@@ -98,8 +96,6 @@ class Velociraptor:
                 'check': 'dalfox version',
                 'windows_check': f'{self.go_bin}\\dalfox.exe version' if self.is_windows else 'dalfox version'
             },
-            --help' if self.is_windows else 'python3 XSStrike/xsstrike.py --help'
-            },
             'sqlmap': {
                 'apt': 'sqlmap', 
                 'check': 'sqlmap --version',
@@ -115,8 +111,6 @@ class Velociraptor:
                 'check': 'httpx -version',
                 'windows_check': f'{self.go_bin}\\httpx.exe -version' if self.is_windows else 'httpx -version'
             },
-            \\kr.exe --help' if self.is_windows else 'kr --help'
-            },
             'gau': {
                 'go': 'go install github.com/lc/gau/v2/cmd/gau@latest', 
                 'check': 'gau --version',
@@ -127,21 +121,15 @@ class Velociraptor:
                 'check': 'wafw00f --version',
                 'windows_check': 'wafw00f --version'
             },
-            --help' if self.is_windows else 'python3 ParamSpider/paramspider.py --help'
-            },
             'arjun': {
                 'pip': 'arjun', 
                 'check': 'arjun --help',
                 'windows_check': 'arjun --help'
             },
-            --help' if self.is_windows else 'python3 Gopherus/gopherus.py --help'
-            },
             'interactsh-client': {
                 'go': 'go install github.com/projectdiscovery/interactsh/cmd/interactsh-client@latest', 
                 'check': 'interactsh-client -version',
                 'windows_check': f'{self.go_bin}\\interactsh-client.exe -version' if self.is_windows else 'interactsh-client -version'
-            },
-            --help' if self.is_windows else 'python3 LFISuite/lfi.py --help'
             },
             'oralyzer': {
                 'go': 'go install github.com/hakluke/hakrawler@latest', 
@@ -152,10 +140,6 @@ class Velociraptor:
                 'go': 'go install github.com/tomnomnom/waybackurls@latest', 
                 'check': 'waybackurls --help',
                 'windows_check': f'{self.go_bin}\\waybackurls.exe --help' if self.is_windows else 'waybackurls --help'
-            },
-            --help' if self.is_windows else 'python3 CMSeeK/cmseek.py --help'
-            },
-            --help' if self.is_windows else 'python3 git-dumper/git-dumper.py --help'
             },
             'msfvenom': {
                 'apt': 'metasploit-framework', 
@@ -182,8 +166,6 @@ class Velociraptor:
                 'check': 'nuclei -version',
                 'windows_check': f'{self.go_bin}\\nuclei.exe -version' if self.is_windows else 'nuclei -version'
             },
-            \\subjack.exe --help' if self.is_windows else 'subjack --help'
-            },
             'httprobe': {
                 'go': 'go install github.com/tomnomnom/httprobe@latest', 
                 'check': 'httprobe --help',
@@ -208,10 +190,9 @@ class Velociraptor:
                 'go': 'go install github.com/tomnomnom/qsreplace@latest', 
                 'check': 'qsreplace --help',
                 'windows_check': f'{self.go_bin}\\qsreplace.exe --help' if self.is_windows else 'qsreplace --help'
-            },
-            ' if self.is_windows else 'ls Gf-Patterns/'
-            }}
-        
+            }
+        }
+
         # Define folder structure
         self.folders = [
             'subdomain_enumeration',
